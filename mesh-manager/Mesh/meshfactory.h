@@ -52,7 +52,7 @@ public:
     static Mesh cube(double sizeX, double sizeY, double sizeZ);
 
     /**
-     //TODO Quentin
+     Quentin
      * @brief cylinder Créer un cylindre de longueur l et de rayon r
      * @param longueur l
      * @param rayon r
@@ -71,7 +71,7 @@ public:
     static Mesh cylindreComplexe(double longueur, double rayon, int precision);
 
 
-    /** Cone taille 1
+    /** Cone taille 1, de 1 de rayon, avec 64 arrêtes
      * @brief cone
      * @return
      */
@@ -131,6 +131,10 @@ public:
      */
     static Mesh rectangleComplexe ( int precision, double longueur, double largeur);
 
+    /**
+     * @brief Crer un cylindre de 4 metres par deux, avec 64 arrêtes
+     * @return
+     */
     static Mesh cylindre();
 
 };

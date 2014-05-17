@@ -103,7 +103,9 @@ public:
      */
     static Mesh generateurGemeau();
 
-    static Mesh generateurColoneStyle();	
+    static Mesh generateurColoneStyle();
+
+    static Mesh cylinderRainures(double longueur, double rayon, int precision, int nbSommets, int rapport);
 };
 
 #endif // GENERATEUR_H

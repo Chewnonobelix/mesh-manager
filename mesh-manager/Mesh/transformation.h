@@ -16,13 +16,9 @@ private:
 public:
     TransformationBarr();
 
-    static Mesh& taperingX(Mesh&, double, double, double, double);
-    static Mesh& taperingY(Mesh&, double, double, double, double);
     static Mesh& taperingZ(Mesh&, double, double, double, double);
 
     static Mesh& twistingZ(Mesh&, double, double);
-    static Mesh& twistingY(Mesh&, double, double);
-    static Mesh& twistingX(Mesh&, double, double);
 
     static Mesh& bendingY(Mesh&, double, double, double, double);
 };

@@ -29,24 +29,6 @@ double TransformationBarr::calculPol(double x, double a0, double a1, double a2, 
     return a0+a1*x+a2*x*x+a3*x*x*x;
 }
 
-Mesh& TransformationBarr::taperingX(Mesh& m, double a, double sa, double b, double sb)
-{
-    m.rotation(0,90, 0);
-    taperingZ(m, a, sa, b, sb);
-    m.rotation(0,-90, 0);
-
-    return m;
-}
-
-Mesh& TransformationBarr::taperingY(Mesh& m, double a, double sa, double b, double sb)
-{
-    m.rotation(90,0, 0);
-    taperingZ(m, a, sa, b, sb);
-    m.rotation(-90, 0, 0);
-
-    return m;
-}
-
 Mesh& TransformationBarr::taperingZ(Mesh& m, double a, double sa, double b, double sb)
 {
     for(int i = 0; i < m.m_tabPoint.size(); i ++)
@@ -69,6 +51,8 @@ Mesh& TransformationBarr::taperingZ(Mesh& m, double a, double sa, double b, doub
         p.setX(sz*p.getX());
         p.setY(sz*p.getY());
     }
+
+    m.corrigeNormales();
 
     return m;
 }
@@ -94,37 +78,20 @@ Mesh& TransformationBarr::twistingZ(Mesh& m, double coeff, double frequence)
         p[1] = sin(2*p[2]*M_PI/frequence) * x + cos(2*p[2]*M_PI/frequence) * y;
     }
 
-    return m;
-}
+    m.corrigeNormales();
 
-
-Mesh& TransformationBarr::twistingY(Mesh& m, double coeff, double frequence)
-{
-    m.rotation(90, 0, 0);
-    twistingZ(m, coeff, frequence);
-    m.rotation(-90, 0, 0);
-    return m;
-}
-
-Mesh& TransformationBarr::twistingX(Mesh& m, double coeff, double frequence)
-{
-    m.rotation(0, 90, 0);
-    twistingZ(m, coeff, frequence);
-    m.rotation(0, -90, 0);
     return m;
 }
 
 Mesh& TransformationBarr::bendingY(Mesh& m, double y0, double ymin, double ymax, double ratio)
 {
-    qDebug()<<m.m_tabPoint.size();
+    m.rotation(-90, 0, 0);
     for(int i = 0; i < m.m_tabPoint.size(); i ++)
     {
-        qDebug()<<i;
         Point3D& p = m.m_tabPoint[i];
         double theta;
         double y = p.getY(), yc;
         double z = p.getZ();
-
         if(y >= ymin && y <= ymax)
         {
             yc = p.getY();
@@ -147,6 +114,7 @@ Mesh& TransformationBarr::bendingY(Mesh& m, double y0, double ymin, double ymax,
             p.setZ(cos(theta)*(z-1/ratio)+1/ratio+sin(theta)*(y-ymax));
         }
     }
-
+    m.rotation(90, 0, 0);
+    m.corrigeNormales();
     return m;
 }

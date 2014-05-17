@@ -11,23 +11,31 @@
 class MeshFactory;
 class Generateur;
 class TransformationBarr;
+class TerrainDiscret;
 
 class Mesh
 {
     friend class MeshFactory;
     friend class Generateur;
     friend class TransformationBarr;
+    friend class TerrainDiscret;
 
 private:
-    QVector<int> m_tabTopologie;
-    QVector<Vector> m_tabNorme;
     QVector<Point3D> m_tabPoint;
+    QVector<Vector> m_tabNorme;
+    QVector<int> m_tabTopologie;
 
     /**
      * @brief subDivideSpherePoint Fonction permettant de subdviser une shphère
      * Non testé
      */
     void subDivideSpherePoint(int = 1);
+
+    /**
+     * @brief degToRad renvoit un radiant
+     * @param deg
+     * @return
+     */
     inline double degToRad(double deg) const
     {
         return (deg*M_PI)/180;
@@ -43,12 +51,17 @@ public:
     void normaliseMesh ();
 
     /**
+     * @brief smoothMesh : fait fondre les normales.
+     */
+    void smoothMesh(double deltaX);
+
+    /**
      * @brief copie la mesh courante
      * @return une nouvelle Mesh
      */
     Mesh copie () const;
 
-	double getMaxZ () const;
+    double getMaxZ () const;
 
     /**
      * @brief Mesh::corrigeNormales
@@ -65,9 +78,16 @@ public:
      */
     void rotation(int composante, double angle);
 
+    /**
+     * @brief rotation sur X, Y, et Z
+     * 0 signifie pas de transformation pour cette composante
+     * @param thetaX
+     * @param thetaY
+     * @param thetaZ
+     */
     void rotation(double thetaX, double thetaY, double thetaZ);
     /**
-     * @brief translation : applique la transformation de vecteur (x,y,z) à l'objet
+     * @brief translation : applique la transformation de vecteur (x,y,z) �  l'objet
      */
     void translation(double x , double y , double z);
 
@@ -77,7 +97,7 @@ public:
      */
     void redimensionner(double x, double y , double z);
 
-	    /**
+    /**
      * @brief getNormeTriangle
      * @param A
      * @param B
@@ -85,7 +105,6 @@ public:
      * @return Nouveau vector correspondant � la nouvelle norme.
      */
     static Vector getNormeTriangle ( Point3D A, Point3D B, Point3D C);
-
 
     /**
      * Retourne une chaine formatée
@@ -101,7 +120,10 @@ public:
      */
     void writeObj(QString nom);
 
-	    /**
+    // Ecrit sans les normales
+    void writeObjNoNormals(QString nom);
+
+    /**
       Ecrit l'objet
      * @brief read object from file
      * @param path of the file
@@ -117,6 +139,9 @@ public:
      */
     static Mesh concatenation(Mesh partieHaute,Mesh partieBasse, double rapportPourcent);
 
+    /**
+     * @brief surcharge des op�rateurs
+     */
     friend Mesh operator + (const Mesh&, const Mesh&);
     friend Mesh operator + (const Mesh&, const QVector<Mesh>&);
     Mesh& operator += (const Mesh&);
@@ -125,6 +150,13 @@ public:
     Mesh& operator = (const Mesh&);
 
     friend bool operator == (const Mesh&, const Mesh&);
+
+
+    /**
+     * @brief generateurTerrain fonction inutile
+     * @return
+     */
+    static Mesh generateurTerrain ();
 };
 
 #endif // MESH_H

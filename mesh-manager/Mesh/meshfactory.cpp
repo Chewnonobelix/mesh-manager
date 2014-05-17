@@ -20,6 +20,7 @@ Mesh MeshFactory::tetrahedre(double h)
     t.m_tabTopologie<<0<<0<<1<<1<<3<<3;
     t.m_tabTopologie<<3<<3<<1<<1<<2<<2;
 
+    t.corrigeNormales();
     return t;
 }
 
@@ -32,6 +33,8 @@ Mesh MeshFactory::poufCube(double grand, double petit)
     {
         c.m_tabPoint[i*2] *= ratio;
     }
+
+    c.corrigeNormales();
     return c;
 }
 
@@ -44,6 +47,8 @@ Mesh MeshFactory::fez(double grand,double petit, double h, int p)
     {
         c.m_tabPoint[i*2] *= ratio;
     }
+
+    c.corrigeNormales();
     return c;
 }
 
@@ -88,6 +93,7 @@ Mesh MeshFactory::planComplexe ( int precision)
 {
     Mesh cube;
     double dist = (double)1/ (double)precision;
+    cube.m_tabPoint.reserve((precision+1)*(precision+1));
 
     for (int i = 0 ; i <= precision ; i ++)
     {
@@ -143,8 +149,8 @@ Mesh MeshFactory::sphere(int precision)
 
 
     s.m_tabNorme<<Vector(0,0,1)<<Vector(0,0,-1)
-             <<Vector(0,1,0)<<Vector(0,-1,0)
-            <<Vector(1,0,0)<<Vector(-1,0,0);
+               <<Vector(0,1,0)<<Vector(0,-1,0)
+              <<Vector(1,0,0)<<Vector(-1,0,0);
 
     s.m_tabTopologie<<1<<4<<5<<1<<2<<2;
     s.m_tabTopologie<<2<<2<<5<<1<<3<<5;
@@ -158,6 +164,7 @@ Mesh MeshFactory::sphere(int precision)
 
     s.subDivideSpherePoint(precision);
 
+    s.corrigeNormales();
     return s;
 }
 
@@ -312,15 +319,15 @@ Mesh MeshFactory::cone()
         // Bas
         a.m_tabPoint.push_back(Point3D(x,y,0));
         a.m_tabNorme.push_back(Vector(x,y,0));
-        //a.tabNorme.push_back(fillVector(a.tabNorme.at(0), );
-        //a.tabNorme.at(0)
+        //a.m_tabNorme.push_back(fillVector(a.m_tabNorme.at(0), );
+        //a.m_tabNorme.at(0)
 
         // Triangle Bas
         a.m_tabTopologie.push_back(0);
         a.m_tabTopologie.push_back(1);//Normale
-        a.m_tabTopologie.push_back(a.m_tabPoint.size()-1);
-        a.m_tabTopologie.push_back(a.m_tabPoint.size()-1);//Normale
         a.m_tabTopologie.push_back(a.m_tabPoint.size()-2);
+        a.m_tabTopologie.push_back(a.m_tabPoint.size()-1);//Normale
+        a.m_tabTopologie.push_back(a.m_tabPoint.size()-1);
         a.m_tabTopologie.push_back(a.m_tabPoint.size()-2);//Normale
 
 
@@ -328,10 +335,10 @@ Mesh MeshFactory::cone()
         /**
          * // Triangle Corps 1 ( base bas )*/
         a.m_tabTopologie.push_back(1);
-        a.m_tabTopologie.push_back(1.);//Normale
-        a.m_tabTopologie.push_back(a.m_tabPoint.size()-1);
-        a.m_tabTopologie.push_back(a.m_tabNorme.size()-1);//Normale
+        a.m_tabTopologie.push_back(1);//Normale
         a.m_tabTopologie.push_back(a.m_tabPoint.size()-2);
+        a.m_tabTopologie.push_back(a.m_tabNorme.size()-1);//Normale
+        a.m_tabTopologie.push_back(a.m_tabPoint.size()-1);
         a.m_tabTopologie.push_back(a.m_tabNorme.size()-2);//Normale
     }
 
@@ -359,63 +366,65 @@ Mesh MeshFactory::cylindre(double longueur, double diametre, int precision)
     a.m_tabPoint.push_back(Point3D(rayon,0,0));
     a.m_tabPoint.push_back(Point3D(rayon,0,longueur));
 
-    // Normales de bases
-    a.m_tabNorme.push_back(Vector(0,0,0));
-    a.m_tabNorme.push_back(Vector(0,0,longueur));
-    a.m_tabNorme.push_back(Vector(rayon,0,0));
-    a.m_tabNorme.push_back(Vector(rayon,0,longueur));
-
     for (int i = 1 ; i <= precision ; i++){
         // IdP1 = 2 * ( i + 1)
         // IdP2 = 2 * ( i + 1) + 1
+
         double angle = i * ( ratio);
         double x = rayon * cos ( angle);
         double y = rayon * sin ( angle);
-
         // Bas
-        a.m_tabPoint.push_back(Point3D(x,y,0));
-        a.m_tabNorme.push_back(Vector(x,y,0));
+        Point3D ptBas = Point3D(x,y,0);
 
         //Haut
-        a.m_tabPoint.push_back(Point3D(x,y,longueur));
-        a.m_tabNorme.push_back(Vector(x,y,longueur));
+        Point3D ptHaut = Point3D(x,y,longueur);
+
+        // Bas
+        a.m_tabPoint.push_back(ptBas);
+
+        //Haut
+        a.m_tabPoint.push_back(ptHaut);
 
         // Triangle Bas
+        a.m_tabNorme.push_back(Mesh::getNormeTriangle( a.m_tabPoint[a.m_tabPoint.size()-2], a.m_tabPoint[0], a.m_tabPoint[a.m_tabPoint.size()-4] ));
         a.m_tabTopologie.push_back(0);
-        a.m_tabTopologie.push_back(1);//Normale
+        a.m_tabTopologie.push_back(a.m_tabNorme.size()-1);//Normale
         a.m_tabTopologie.push_back(a.m_tabPoint.size()-2);
-        a.m_tabTopologie.push_back(a.m_tabNorme.size()-2);//Normale
+        a.m_tabTopologie.push_back(a.m_tabNorme.size()-1);//Normale
         a.m_tabTopologie.push_back(a.m_tabPoint.size()-4);
-        a.m_tabTopologie.push_back(a.m_tabNorme.size()-4);//Normale
-
+        a.m_tabTopologie.push_back(a.m_tabNorme.size()-1);//Normale
 
         // Triangle Haut
+        a.m_tabNorme.push_back(Mesh::getNormeTriangle( a.m_tabPoint[a.m_tabPoint.size()-1], a.m_tabPoint[1], a.m_tabPoint[a.m_tabPoint.size()-3] ));
+
         a.m_tabTopologie.push_back(1);
-        a.m_tabTopologie.push_back(0);//Normale
-        a.m_tabTopologie.push_back(a.m_tabPoint.size()-1);
         a.m_tabTopologie.push_back(a.m_tabNorme.size()-1);//Normale
         a.m_tabTopologie.push_back(a.m_tabPoint.size()-3);
-        a.m_tabTopologie.push_back(a.m_tabNorme.size()-3);//Normale
+        a.m_tabTopologie.push_back(a.m_tabNorme.size()-1);//Normale
+        a.m_tabTopologie.push_back(a.m_tabPoint.size()-1);
+        a.m_tabTopologie.push_back(a.m_tabNorme.size()-1);//Normale
 
 
         /**
-         * // Triangle Corps 1 ( base bas )*/
-        a.m_tabTopologie.push_back(a.m_tabPoint.size()-2);
-        a.m_tabTopologie.push_back(a.m_tabNorme.size()-2);//Normale
+             * // Triangle Corps 1 ( base bas )*/
+        a.m_tabNorme.push_back(Mesh::getNormeTriangle(a.m_tabPoint[a.m_tabPoint.size()-2], a.m_tabPoint[a.m_tabPoint.size()-1], a.m_tabPoint[a.m_tabPoint.size()-4] ));
+
         a.m_tabTopologie.push_back(a.m_tabPoint.size()-4);
-        a.m_tabTopologie.push_back(a.m_tabNorme.size()-4);//Normale
+        a.m_tabTopologie.push_back(a.m_tabNorme.size()-1);//Normale
+        a.m_tabTopologie.push_back(a.m_tabPoint.size()-2);
+        a.m_tabTopologie.push_back(a.m_tabNorme.size()-1);//Normale
         a.m_tabTopologie.push_back(a.m_tabPoint.size()-1);
         a.m_tabTopologie.push_back(a.m_tabNorme.size()-1);//Normale
 
-
         // Triangle Corps 2 ( base haut)
+        a.m_tabNorme.push_back(Mesh::getNormeTriangle(a.m_tabPoint[a.m_tabPoint.size()-3], a.m_tabPoint[a.m_tabPoint.size()-1], a.m_tabPoint[a.m_tabPoint.size()-4] ));
+
         a.m_tabTopologie.push_back(a.m_tabPoint.size()-1);
         a.m_tabTopologie.push_back(a.m_tabNorme.size()-1);//Normale
         a.m_tabTopologie.push_back(a.m_tabPoint.size()-3);
-        a.m_tabTopologie.push_back(a.m_tabNorme.size()-3);//Normale
+        a.m_tabTopologie.push_back(a.m_tabNorme.size()-1);//Normale
         a.m_tabTopologie.push_back(a.m_tabPoint.size()-4);
-        a.m_tabTopologie.push_back(a.m_tabNorme.size()-4);//Normale
-
+        a.m_tabTopologie.push_back(a.m_tabNorme.size()-1);//Normale
     }
     return a;
 }

@@ -1,15 +1,51 @@
-﻿#include "mesh.h"
+#include "mesh.h"
 #include <QFile>
 #include <QTextStream>
 #include <iostream>
-#include <QDebug>
+//#include <QDebug>
+#include <cmath>
 
+#include "perlinnoise.h"
+#include "meshfactory.h"
+#include "terraincontinu.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
-Mesh::Mesh()
+
+void Mesh::smoothMesh( double deltaX)
+{
+    double deltaT = sqrt(2* (deltaX* deltaX));
+    QVector<Point3D> tabPts;
+    for(int i = 0 ; i < m_tabPoint.size() ; i++ )
+    {
+        tabPts.clear();
+        //std::cout << "tourne i " << i << endl;
+        Point3D ptLocal = m_tabPoint[i];
+        for (int j = 0 ; j < m_tabPoint.size(); j ++)
+        {
+            double dist = ptLocal.distanceXYTo(m_tabPoint[j]);
+            if (tabPts.contains(m_tabPoint[j]) )
+            { /* Do nothing ) */ }
+            else if ( dist < deltaT*1.1 )
+                tabPts.push_back(m_tabPoint[j]);
+        }
+
+        if ( tabPts.size() > 5)
+        {
+            double z = 0;
+            for ( int k = 0 ; k < tabPts.size() ; k ++ )
+            {
+                z += tabPts[k].getZ(); //( ptLocal.getZ() + (tabPts[k].getZ()/tabPts.size()) ) / 2.0 ;
+            }
+            z = z/ tabPts.size();
+            m_tabPoint[i].setZ(z);
+        }
+    }
+}
+
+Mesh::Mesh() : m_tabPoint(), m_tabNorme(), m_tabTopologie()
 {
 }
 
@@ -51,7 +87,7 @@ void Mesh::corrigeNormales ()
         Point3D B = m_tabPoint[m_tabTopologie[i+2]];
         Point3D C = m_tabPoint[m_tabTopologie[i+4]];
 
-        m_tabNorme.push_back(getNormeTriangle(B,A,C));
+        m_tabNorme.push_back(getNormeTriangle(A,B,C));
         m_tabTopologie[i+1] = m_tabNorme.size()-1;
         m_tabTopologie[i+3] = m_tabNorme.size()-1;
         m_tabTopologie[i+5] = m_tabNorme.size()-1;
@@ -64,7 +100,7 @@ Mesh Mesh::copie () const
     Mesh copie;
     for (int i =0 ; i < m_tabPoint.size() ; i ++)
     {
-      copie.m_tabPoint.push_back(m_tabPoint.at(i));
+        copie.m_tabPoint.push_back(m_tabPoint.at(i));
     }
 
     for (int i =0 ; i < m_tabNorme.size() ; i ++)
@@ -100,6 +136,7 @@ Mesh operator + (const Mesh& scene, const Mesh& ajout)
         ret.m_tabTopologie.push_back(ajout.m_tabTopologie[i] + partieBasseTaillePoint);
         ret.m_tabTopologie.push_back(ajout.m_tabTopologie[i+1] + partieBasseTailleNorm);
     }
+    return ret;
 }
 
 Mesh operator + (const Mesh& scene, const QVector<Mesh>& ajout)
@@ -110,6 +147,7 @@ Mesh operator + (const Mesh& scene, const QVector<Mesh>& ajout)
     {
         ret += ajout[i];
     }
+    return ret;
 }
 
 Mesh& Mesh::operator += (const Mesh& ajout)
@@ -177,8 +215,8 @@ void Mesh::rotation(int composante, double angle)
         {
             Point3D d = m_tabPoint[i];
             m_tabPoint[i] = Point3D(d.getX(),
-                                  cosAngle * d.getY() - sinAngle * d.getZ(),
-                                  sinAngle * d.getY() + cosAngle * d.getZ());
+                                    cosAngle * d.getY() - sinAngle * d.getZ(),
+                                    sinAngle * d.getY() + cosAngle * d.getZ());
         }
 
         for(int i = 0; i < m_tabNorme.size(); i ++)
@@ -197,8 +235,8 @@ void Mesh::rotation(int composante, double angle)
         {
             Point3D d = m_tabPoint[i];
             m_tabPoint[i] = Point3D(cosAngle * d.getX() + sinAngle * d.getZ(),
-                                  d.getY(),
-                                  - sinAngle * d.getX() + cosAngle * d.getZ());
+                                    d.getY(),
+                                    - sinAngle * d.getX() + cosAngle * d.getZ());
         }
 
         for(int i = 0; i < m_tabNorme.size(); i ++)
@@ -217,8 +255,8 @@ void Mesh::rotation(int composante, double angle)
         {
             Point3D d = m_tabPoint[i];
             m_tabPoint[i] = Point3D(cosAngle * d.getX()- sinAngle * d.getY(),
-                                  sinAngle * d.getX()+ cosAngle * d.getY(),
-                                  d.getZ());
+                                    sinAngle * d.getX()+ cosAngle * d.getY(),
+                                    d.getZ());
         }
 
         for(int i = 0; i < m_tabNorme.size(); i ++)
@@ -313,7 +351,7 @@ void Mesh::writeObj(QString nom)
     // On ouvre notre fichier en lecture seule et on vérifie l'ouverture
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-        qDebug()<<"Fichier"<<nom<<"non ouvert";
+        std::cout<<"Fichier "<<nom.toStdString()<<" non ouvert" << std::endl;
         return;
     }
 
@@ -322,7 +360,70 @@ void Mesh::writeObj(QString nom)
     // On choisit le codec correspondant au jeu de caractère que l'on souhaite ; ici, UTF-8
     flux.setCodec("UTF-8");
     // Ecriture des diffèrentes lignes dans le fichier
-    flux << toString() << endl;
+    flux << "#Obj.toString()"<< endl << " o objet" << endl;
+
+    for (int i = 0 ; i < m_tabPoint.size(); i++){
+        flux << "v " << m_tabPoint.at(i).getX() << " " << m_tabPoint.at(i).getY() << " " << m_tabPoint.at(i).getZ() << endl;
+    }
+
+    flux << endl << "#Normes" << endl;
+
+    for (int i = 0 ; i < m_tabNorme.size(); i++){
+        flux << "vn " << m_tabNorme[i][0] << " " << m_tabNorme[i][1] << " " <<m_tabNorme[i][2] << endl;
+    }
+
+    flux << endl << "g shape" << endl;
+    flux << endl << "#Face" << endl;
+
+    for (int i = 0 ; i < m_tabTopologie.size()  ; i+=6)
+    {
+        flux << "f " << m_tabTopologie.at(i)+1 << "//" << m_tabTopologie.at(i+1)+1;
+        flux << " "  << m_tabTopologie.at(i+2)+1 << "//" << m_tabTopologie.at(i+3)+1;
+        flux << " "  << m_tabTopologie.at(i+4)+1 << "//" << m_tabTopologie.at(i+5)+1 << endl;
+    }
+
+    flux <<"#fin" << endl;
+
+    file.close();
+}
+
+
+void Mesh::writeObjNoNormals(QString nom)
+{
+    // Création d'un objet QFile
+    QFile file(nom);
+    // On ouvre notre fichier en lecture seule et on vérifie l'ouverture
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        std::cout<<"Fichier "<<nom.toStdString()<<" non ouvert" << std::endl;
+        return;
+    }
+
+    // Création d'un objet QTextStream à partir de notre objet QFile
+    QTextStream flux(&file);
+    // On choisit le codec correspondant au jeu de caractère que l'on souhaite ; ici, UTF-8
+    flux.setCodec("UTF-8");
+    // Ecriture des diffèrentes lignes dans le fichier
+    flux << "#Obj.toString()"<< endl << "o shape.009" << endl;
+
+    for (int i = 0 ; i < m_tabPoint.size(); i++){
+        flux << "v " << m_tabPoint.at(i).getX() << " " << m_tabPoint.at(i).getY() << " " << m_tabPoint.at(i).getZ() << endl;
+    }
+
+    flux << endl << "#Face" << endl;
+    flux << "usemtl None"<< endl;
+    flux << "s 1" << endl;
+
+    for (int i = 0 ; i < m_tabTopologie.size()  ; i+=6)
+    {
+        flux << "f " << m_tabTopologie.at(i)+1 ;
+        flux << " "  << m_tabTopologie.at(i+2)+1 ;
+        flux << " "  << m_tabTopologie.at(i+4)+1 << endl;
+    }
+
+    flux <<"#fin" << endl;
+
+    file.close();
 }
 
 Mesh Mesh::readObj(QString path)
@@ -349,7 +450,7 @@ Mesh Mesh::readObj(QString path)
 
         if (opperation.at(0) == "v")
         {
-        //    qDebug() << opperation.at(0);
+            //    qDebug() << opperation.at(0);
             Point3D p = Point3D(opperation.at(1).toDouble(),opperation.at(2).toDouble(),opperation.at(3).toDouble());
             m.m_tabPoint.push_back(p);
         }
@@ -375,7 +476,7 @@ Mesh Mesh::readObj(QString path)
 
 
     // On choisit le codec correspondant au jeu de caractère que l'on souhaite ; ici, UTF-8
-  //  flux.setCodec("UTF-8");
+    //  flux.setCodec("UTF-8");
     // Écriture des différentes lignes dans le fichier
     //flux << data << endl;
 
@@ -547,4 +648,48 @@ void Mesh::subDivideSpherePoint(int precision)
 void Mesh::normaliseMesh()
 {
     this->translation(-m_tabPoint[0].getX(),- m_tabPoint[0].getY(),- m_tabPoint[0].getZ());
+}
+
+
+Mesh Mesh::generateurTerrain ()
+{
+    //Mesh terrain = Mesh::plan5points();/*
+    Mesh terrain = MeshFactory::planComplexe(100);
+    terrain.redimensionner(100,100,1);
+    /*PerlinNoise noise;
+    noise.SetAmplitude(20);
+    noise.SetFrequency(00.200);
+    noise.SetOctaves(1);
+    noise.SetRandomSeed(128);
+    noise.SetPersistence(2);*/
+    /* int n = 6;
+    QVector<double> tabHauteursIn;
+    tabHauteursIn << 10 << 5 << 2.5 << 1.25 << 10.0/16.0 << 10.0/32.0;
+    QVector<double> tabFrequencesIn;
+    tabFrequencesIn << 32 << 16 << 8 << 4 << 2 << 1;
+
+    FractalNoise noise;
+
+    TerrainContinu t(noise);
+
+    for (int i = 0 ; i < terrain.m_tabPoint.size(); i++)
+    {
+        terrain.m_tabPoint[i].setZ( t.getZ(terrain.m_tabPoint[i].getX(), terrain.m_tabPoint[i].getY()));
+    }
+
+    for (int i = 0 ; i < terrain.m_tabPoint.size(); i++)
+    {
+        terrain.m_tabPoint[i].setZ( noise.GetHeight(terrain.m_tabPoint[i].getX(), terrain.m_tabPoint[i].getY()));
+    }
+
+
+    for (int i = 0 ; i < terrain.m_tabPoint.size(); i++)
+    {
+        terrain.m_tabPoint[i].setZ( terrain.m_tabPoint[i].getZ()+ 0.5*( noise.GetHeight(terrain.m_tabPoint[i].getY(), terrain.m_tabPoint[i].getX())));
+    }*/
+    /*for (int l = 1 ; l < 5 ; l ++ )
+    {
+        terrain.subdivisePlan(octaves, freq, persistence, 10*l);
+    }*/
+    return terrain;
 }
