@@ -1,5 +1,7 @@
 #include "meshfactory.h"
 
+using namespace MeshBase;
+
 MeshFactory::MeshFactory()
 {
 }
@@ -11,9 +13,9 @@ Mesh MeshFactory::tetrahedre(double h)
     double l = 2*h/sqrt(3);
 
     double x = sqrt((l*l) - (h*h));
-    t.m_tabPoint<<Point3D(0,0,0)<<Point3D(l,0,0)<<Point3D(x,h, 0)<<Point3D(x,h/2,h);
+    t.m_tabPoint<<Geometry::Point3D(0,0,0)<<Geometry::Point3D(l,0,0)<<Geometry::Point3D(x,h, 0)<<Geometry::Point3D(x,h/2,h);
 
-    t.m_tabNorme<<Vector(0,0,0)<<Vector(l,0,0)<<Vector(x,h, 0)<<Vector(x,h/2,h);
+    t.m_tabNorme<<Geometry::Vector(0,0,0)<<Geometry::Vector(l,0,0)<<Geometry::Vector(x,h, 0)<<Geometry::Vector(x,h/2,h);
 
     t.m_tabTopologie<<0<<0<<1<<1<<2<<2;
     t.m_tabTopologie<<0<<0<<3<<3<<2<<2;
@@ -99,9 +101,9 @@ Mesh MeshFactory::planComplexe ( int precision)
     {
         for (int j = 0 ; j <= precision ; ++j )
         {
-            cube.m_tabPoint.push_back(Point3D(dist*i,j*dist,0));
+            cube.m_tabPoint.push_back(Geometry::Point3D(dist*i,j*dist,0));
 
-            cube.m_tabNorme.push_back(Vector(dist*i,j*dist,0));
+            cube.m_tabNorme.push_back(Geometry::Vector(dist*i,j*dist,0));
             if ( i && j )
             {
                 int tailleP = cube.m_tabPoint.size()-1;
@@ -140,17 +142,17 @@ Mesh MeshFactory::sphere(int precision)
 {
     Mesh s;
 
-    s.m_tabPoint.push_back(Point3D(0,0,1));
-    s.m_tabPoint.push_back(Point3D(1,0,0));
-    s.m_tabPoint.push_back(Point3D(0,1,0));
-    s.m_tabPoint.push_back(Point3D(-1,0,0));
-    s.m_tabPoint.push_back(Point3D(0,-1,0));
-    s.m_tabPoint.push_back(Point3D(0,0,-1));
+    s.m_tabPoint.push_back(Geometry::Point3D(0,0,1));
+    s.m_tabPoint.push_back(Geometry::Point3D(1,0,0));
+    s.m_tabPoint.push_back(Geometry::Point3D(0,1,0));
+    s.m_tabPoint.push_back(Geometry::Point3D(-1,0,0));
+    s.m_tabPoint.push_back(Geometry::Point3D(0,-1,0));
+    s.m_tabPoint.push_back(Geometry::Point3D(0,0,-1));
 
 
-    s.m_tabNorme<<Vector(0,0,1)<<Vector(0,0,-1)
-               <<Vector(0,1,0)<<Vector(0,-1,0)
-              <<Vector(1,0,0)<<Vector(-1,0,0);
+    s.m_tabNorme<<Geometry::Vector(0,0,1)<<Geometry::Vector(0,0,-1)
+               <<Geometry::Vector(0,1,0)<<Geometry::Vector(0,-1,0)
+              <<Geometry::Vector(1,0,0)<<Geometry::Vector(-1,0,0);
 
     s.m_tabTopologie<<1<<4<<5<<1<<2<<2;
     s.m_tabTopologie<<2<<2<<5<<1<<3<<5;
@@ -184,8 +186,8 @@ Mesh MeshFactory::demiTore(double rayon, double rTube,int precision)
             double y = ( rayon +rTube*cos(phi) ) * sin ( theta);
             double z = rTube*sin(phi) ;
 
-            meshRet.m_tabPoint.push_back(Point3D(x, y, z));
-            meshRet.m_tabNorme.push_back(Vector(x, y, z));
+            meshRet.m_tabPoint.push_back(Geometry::Point3D(x, y, z));
+            meshRet.m_tabNorme.push_back(Geometry::Vector(x, y, z));
             if (i > 0 ){
                 int pos = meshRet.m_tabPoint.size()-1;
                 int posN = meshRet.m_tabNorme.size()-1;
@@ -249,8 +251,8 @@ Mesh MeshFactory::tore(double rayon, double rTube,int precision)
             double y = ( rayon +rTube*cos(phi) ) * sin ( theta);
             double z = rTube*sin(phi) ;
 
-            a.m_tabPoint.push_back(Point3D(x, y, z));
-            a.m_tabNorme.push_back(Vector(x, y, z));
+            a.m_tabPoint.push_back(Geometry::Point3D(x, y, z));
+            a.m_tabNorme.push_back(Geometry::Vector(x, y, z));
             if (i > 0 ){
                 int pos = a.m_tabPoint.size()-1;
                 int posN = a.m_tabNorme.size()-1;
@@ -297,16 +299,16 @@ Mesh MeshFactory::cone()
     double ratio = (2 * 3.14116) / precision;
 
     // Points sur l'axe
-    a.m_tabPoint.push_back(Point3D(0,0,0));
-    a.m_tabPoint.push_back(Point3D(0,0,taille));
+    a.m_tabPoint.push_back(Geometry::Point3D(0,0,0));
+    a.m_tabPoint.push_back(Geometry::Point3D(0,0,taille));
     // Points de base pour faire fonctionner l'algorithme
-    a.m_tabPoint.push_back(Point3D(rayon,0,0));
+    a.m_tabPoint.push_back(Geometry::Point3D(rayon,0,0));
 
 
     // Normales de bases
-    a.m_tabNorme.push_back(Vector(0,0,-1));
-    a.m_tabNorme.push_back(Vector(0,0,1));
-    a.m_tabNorme.push_back(Vector(rayon,0,0));
+    a.m_tabNorme.push_back(Geometry::Vector(0,0,-1));
+    a.m_tabNorme.push_back(Geometry::Vector(0,0,1));
+    a.m_tabNorme.push_back(Geometry::Vector(rayon,0,0));
 
 
     for (int i = 1 ; i <= precision ; i++){
@@ -317,9 +319,9 @@ Mesh MeshFactory::cone()
         double y = rayon * sin ( angle);
 
         // Bas
-        a.m_tabPoint.push_back(Point3D(x,y,0));
-        a.m_tabNorme.push_back(Vector(x,y,0));
-        //a.m_tabNorme.push_back(fillVector(a.m_tabNorme.at(0), );
+        a.m_tabPoint.push_back(Geometry::Point3D(x,y,0));
+        a.m_tabNorme.push_back(Geometry::Vector(x,y,0));
+        //a.m_tabNorme.push_back(fillGeometry::Vector(a.m_tabNorme.at(0), );
         //a.m_tabNorme.at(0)
 
         // Triangle Bas
@@ -359,12 +361,12 @@ Mesh MeshFactory::cylindre(double longueur, double diametre, int precision)
     double ratio = (2 * 3.14116) / precision;
 
     // Points sur l'axe
-    a.m_tabPoint.push_back(Point3D(0,0,0));
-    a.m_tabPoint.push_back(Point3D(0,0,longueur));
+    a.m_tabPoint.push_back(Geometry::Point3D(0,0,0));
+    a.m_tabPoint.push_back(Geometry::Point3D(0,0,longueur));
 
     // Points de base pour faire fonctionner l'algorithme
-    a.m_tabPoint.push_back(Point3D(rayon,0,0));
-    a.m_tabPoint.push_back(Point3D(rayon,0,longueur));
+    a.m_tabPoint.push_back(Geometry::Point3D(rayon,0,0));
+    a.m_tabPoint.push_back(Geometry::Point3D(rayon,0,longueur));
 
     for (int i = 1 ; i <= precision ; i++){
         // IdP1 = 2 * ( i + 1)
@@ -374,10 +376,10 @@ Mesh MeshFactory::cylindre(double longueur, double diametre, int precision)
         double x = rayon * cos ( angle);
         double y = rayon * sin ( angle);
         // Bas
-        Point3D ptBas = Point3D(x,y,0);
+        Geometry::Point3D ptBas = Geometry::Point3D(x,y,0);
 
         //Haut
-        Point3D ptHaut = Point3D(x,y,longueur);
+        Geometry::Point3D ptHaut = Geometry::Point3D(x,y,longueur);
 
         // Bas
         a.m_tabPoint.push_back(ptBas);
@@ -435,7 +437,9 @@ Mesh MeshFactory::cylindre(double longueur, double diametre, int precision)
  */
 Mesh MeshFactory::cylindre()
 {
-    return MeshFactory::cylindre(4,2,64);
+    Mesh m = MeshFactory::cylindre(1,1,64);
+//    m.redimensionner(0.25,0.25,0.25);
+    return m;
 }
 
 /**
@@ -473,21 +477,21 @@ Mesh MeshFactory::cube(double sizeX, double sizeY, double sizeZ)
     sizeZ /= 2;
 
 
-    c.m_tabPoint.push_back(Point3D(-sizeX,-sizeY,-sizeZ));
-    c.m_tabPoint.push_back(Point3D(-sizeX,-sizeY,sizeZ));
-    c.m_tabPoint.push_back(Point3D(-sizeX,sizeY,-sizeZ));
-    c.m_tabPoint.push_back(Point3D(-sizeX,sizeY,sizeZ));
-    c.m_tabPoint.push_back(Point3D(sizeX,-sizeY,-sizeZ));
-    c.m_tabPoint.push_back(Point3D(sizeX,-sizeY,sizeZ));
-    c.m_tabPoint.push_back(Point3D(sizeX,sizeY,-sizeZ));
-    c.m_tabPoint.push_back(Point3D(sizeX,sizeY,sizeZ));
+    c.m_tabPoint.push_back(Geometry::Point3D(-sizeX,-sizeY,-sizeZ));
+    c.m_tabPoint.push_back(Geometry::Point3D(-sizeX,-sizeY,sizeZ));
+    c.m_tabPoint.push_back(Geometry::Point3D(-sizeX,sizeY,-sizeZ));
+    c.m_tabPoint.push_back(Geometry::Point3D(-sizeX,sizeY,sizeZ));
+    c.m_tabPoint.push_back(Geometry::Point3D(sizeX,-sizeY,-sizeZ));
+    c.m_tabPoint.push_back(Geometry::Point3D(sizeX,-sizeY,sizeZ));
+    c.m_tabPoint.push_back(Geometry::Point3D(sizeX,sizeY,-sizeZ));
+    c.m_tabPoint.push_back(Geometry::Point3D(sizeX,sizeY,sizeZ));
 
-    c.m_tabNorme.push_back(Vector(0,0,1));
-    c.m_tabNorme.push_back(Vector(0,0,-1));
-    c.m_tabNorme.push_back(Vector(0,1,0));
-    c.m_tabNorme.push_back(Vector(0,-1,0));
-    c.m_tabNorme.push_back(Vector(1,0,0));
-    c.m_tabNorme.push_back(Vector(-1,0,0));
+    c.m_tabNorme.push_back(Geometry::Vector(0,0,1));
+    c.m_tabNorme.push_back(Geometry::Vector(0,0,-1));
+    c.m_tabNorme.push_back(Geometry::Vector(0,1,0));
+    c.m_tabNorme.push_back(Geometry::Vector(0,-1,0));
+    c.m_tabNorme.push_back(Geometry::Vector(1,0,0));
+    c.m_tabNorme.push_back(Geometry::Vector(-1,0,0));
 
     c.m_tabTopologie.push_back(0);
     c.m_tabTopologie.push_back(1);
@@ -582,10 +586,10 @@ Mesh MeshFactory::cylindreComplexe(double longueur, double rayon, int precision)
     for (int i = 4 ; i < c.m_tabPoint.size(); i+=2)
     {
         double changement = 1 + ( rayon * 0.005 ) * sin(i/4);
-        c.m_tabPoint[i]= Point3D(c.m_tabPoint[i].getX()* changement, c.m_tabPoint[i].getY()* changement, c.m_tabPoint[i].getZ() );
-        c.m_tabPoint[i+1]= Point3D(c.m_tabPoint[i+1].getX() *changement, c.m_tabPoint[i+1].getY() * changement, c.m_tabPoint[i+1].getZ() );
-        c.m_tabNorme[i]= Vector(c.m_tabNorme[i][0]* changement, c.m_tabNorme[i][1]* changement, c.m_tabNorme[i][2] );
-        c.m_tabNorme[i+1]= Vector(c.m_tabNorme[i+1][0] *changement, c.m_tabNorme[i+1][1] * changement, c.m_tabNorme[i+1][2] );
+        c.m_tabPoint[i]= Geometry::Point3D(c.m_tabPoint[i].getX()* changement, c.m_tabPoint[i].getY()* changement, c.m_tabPoint[i].getZ() );
+        c.m_tabPoint[i+1]= Geometry::Point3D(c.m_tabPoint[i+1].getX() *changement, c.m_tabPoint[i+1].getY() * changement, c.m_tabPoint[i+1].getZ() );
+        c.m_tabNorme[i]= Geometry::Vector(c.m_tabNorme[i][0]* changement, c.m_tabNorme[i][1]* changement, c.m_tabNorme[i][2] );
+        c.m_tabNorme[i+1]= Geometry::Vector(c.m_tabNorme[i+1][0] *changement, c.m_tabNorme[i+1][1] * changement, c.m_tabNorme[i+1][2] );
     }
     return c;
 }

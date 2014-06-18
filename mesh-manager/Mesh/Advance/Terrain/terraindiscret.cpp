@@ -1,10 +1,12 @@
 #include "terraindiscret.h"
 
-#include"meshfactory.h"
+#include"../../Base/meshfactory.h"
 #include <iostream>
 #include <QImage>
 #include <QColor>
 #include <QRgb>
+
+using namespace MeshAdvance;
 
 TerrainDiscret::TerrainDiscret(): mTailleTerrain(0), mDeltaXY(0)
 {
@@ -73,9 +75,9 @@ double TerrainDiscret::getZ(int x)
 }
 
 
-Mesh TerrainDiscret::getMesh()
+MeshBase::Mesh TerrainDiscret::getMesh()
 {
-    mMesh = MeshFactory::planComplexe(mTailleTerrain);
+    mMesh = MeshBase::MeshFactory::planComplexe(mTailleTerrain);
 
     mMesh.redimensionner(mTailleTerrain*mDeltaXY, mTailleTerrain*mDeltaXY,1);
     for ( int i = 0 ; i < mMesh.m_tabPoint.size() ; i++ )
@@ -87,7 +89,7 @@ Mesh TerrainDiscret::getMesh()
     return mMesh;
 }
 
-bool TerrainDiscret::contient ( double x, double y, QPair<Point3D ,Point3D > pairIn)
+bool TerrainDiscret::contient ( double x, double y, QPair<Geometry::Point3D ,Geometry::Point3D > pairIn)
 {
     bool ret = false;
     if( x >= pairIn.first.getX() && x <= pairIn.second.getX())
@@ -102,7 +104,7 @@ bool TerrainDiscret::contient ( double x, double y, QPair<Point3D ,Point3D > pai
  * @brief TerrainDiscret : constructeur avec multi ensembles
  * @param fonctionIn
  */
-TerrainDiscret::TerrainDiscret(QVector<QPair<QPair<Point3D ,Point3D >, TerrainContinu  > > fonctionIn, int nbPoints, double deltaXY, double deltaZ) :
+TerrainDiscret::TerrainDiscret(QVector<QPair<QPair<Geometry::Point3D ,Geometry::Point3D >, TerrainContinu  > > fonctionIn, int nbPoints, double deltaXY, double deltaZ) :
     TabEnembles( fonctionIn), mTailleTerrain(nbPoints), mDeltaXY(deltaXY), mDeltaZ(deltaZ)
 {
     mTabElevation.reserve((1+mTailleTerrain)*(1+mTailleTerrain));

@@ -2,7 +2,7 @@
 #define PAIRBRUITDISTANCE_H
 
 #include "terraincontinu.h"
-#include "../Utility/point3d.h"
+#include "../../../Utility/point3d.h"
 
 class PairBruitDistance
 {

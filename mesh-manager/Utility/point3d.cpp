@@ -55,17 +55,17 @@ Point3D& Point3D::operator = (const Point3D& p)
     return *this;
 }
 
-bool operator == (const Point3D& p1, const Point3D& p2)
+bool Point3D::operator == (const Point3D& p)
 {
-    return (p1.getX( ) == p2.getX( )) &&
-            (p1.getY( ) == p2.getY( )) &&
-            (p1.getZ( ) == p2.getZ( ));
+    return (getX( ) == p.getX( )) &&
+            (getY( ) == p.getY( )) &&
+            (getZ( ) == p.getZ( ));
 }
 
-Point3D operator + (const Point3D& p1, const Point3D& p2)
+Point3D Point3D::operator + (const Point3D& p)
 {
-    return Point3D(p1.getX( ) + p2.getX( ), p1.getY( ) + p2.getY( ),
-                   p1.getZ( ) + p2.getZ( ));
+    return Point3D(getX( ) + p.getX( ), getY( ) + p.getY( ),
+                   getZ( ) + p.getZ( ));
 }
 
 Point3D& Point3D::operator += (const Point3D& p)
@@ -77,9 +77,9 @@ Point3D& Point3D::operator += (const Point3D& p)
     return *this;
 }
 
-Point3D operator*(const Point3D& p, double s)
+Point3D Point3D::operator*(double s)
 {
-    return Point3D (p.getX( ) * s, p.getY( ) * s, p.getZ( ) * s);
+    return Point3D (getX() * s, getY() * s, getZ() * s);
 }
 
 Point3D& Point3D::operator *= (double s)

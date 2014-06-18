@@ -1,5 +1,7 @@
 #include "transformation.h"
 
+using namespace MeshBase;
+
 TransformationBarr::TransformationBarr()
 {
 }
@@ -29,11 +31,11 @@ double TransformationBarr::calculPol(double x, double a0, double a1, double a2, 
     return a0+a1*x+a2*x*x+a3*x*x*x;
 }
 
-Mesh& TransformationBarr::taperingZ(Mesh& m, double a, double sa, double b, double sb)
+MeshBase::Mesh& TransformationBarr::taperingZ(MeshBase::Mesh& m, double a, double sa, double b, double sb)
 {
     for(int i = 0; i < m.m_tabPoint.size(); i ++)
     {
-        Point3D& p = m.m_tabPoint[i];
+        Geometry::Point3D& p = m.m_tabPoint[i];
         double sz;
         if(p.getZ() >= a && p.getZ() <= b)
         {
@@ -57,11 +59,11 @@ Mesh& TransformationBarr::taperingZ(Mesh& m, double a, double sa, double b, doub
     return m;
 }
 
-Mesh& TransformationBarr::twistingZ(Mesh& m, double coeff, double frequence)
+MeshBase::Mesh& TransformationBarr::twistingZ(MeshBase::Mesh& m, double coeff, double frequence)
 {
     for(int i = 0; i < m.m_tabPoint.size(); i ++)
     {
-        Point3D &p = m.m_tabPoint[i];
+        Geometry::Point3D &p = m.m_tabPoint[i];
 
         double x = p.getX(),y = p.getY();
         p.setX(cos(2*p.getZ()*M_PI/frequence) * x + sin(2*p.getZ()*M_PI/frequence) * y);
@@ -70,8 +72,7 @@ Mesh& TransformationBarr::twistingZ(Mesh& m, double coeff, double frequence)
 
     for(int i = 0; i < m.m_tabNorme.size(); i ++)
     {
-        Vector
-                &p = m.m_tabNorme[i];
+        Geometry::Vector &p = m.m_tabNorme[i];
 
         double x = p[0],y = p[1];
         p[0] = cos(2*p[2]*M_PI/frequence) * x + sin(2*p[2]*M_PI/frequence) * y;
@@ -83,12 +84,12 @@ Mesh& TransformationBarr::twistingZ(Mesh& m, double coeff, double frequence)
     return m;
 }
 
-Mesh& TransformationBarr::bendingY(Mesh& m, double y0, double ymin, double ymax, double ratio)
+MeshBase::Mesh& TransformationBarr::bendingY(MeshBase::Mesh& m, double y0, double ymin, double ymax, double ratio)
 {
     m.rotation(-90, 0, 0);
     for(int i = 0; i < m.m_tabPoint.size(); i ++)
     {
-        Point3D& p = m.m_tabPoint[i];
+        Geometry::Point3D& p = m.m_tabPoint[i];
         double theta;
         double y = p.getY(), yc;
         double z = p.getZ();

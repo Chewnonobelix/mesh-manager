@@ -2,9 +2,9 @@
 #define POINT3D_H
 
 #include "vector.h"
-
 namespace Geometry
 {
+
     class Point3D
     {
     private:
@@ -54,12 +54,12 @@ namespace Geometry
         /**
         * Opérateur d'égalité
         */
-        friend bool operator == (const Point3D&, const Point3D&);
+        bool operator == (const Point3D&);
 
         /**
         * Opérateur d'addition de 2 points, crée un nouveau point.
         */
-        friend Point3D operator + (const Point3D&, const Point3D&);
+        Point3D operator + (const Point3D&);
 
 
         /**
@@ -70,7 +70,7 @@ namespace Geometry
         /**
         * Multiplication d'un point par un scalaire, crée un nouveau point
         */
-        friend Point3D operator*(const Point3D&, double);
+        Point3D operator*(double);
 
         /**
         * Multiplication statique par un scalaire

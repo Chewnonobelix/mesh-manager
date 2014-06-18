@@ -2,7 +2,7 @@
 #define TERRAINCONTINU_H
 
 #include <QVector>
-#include "perlinnoise.h"
+#include "../../../Utility/perlinnoise.h"
 
 class TerrainContinu
 {

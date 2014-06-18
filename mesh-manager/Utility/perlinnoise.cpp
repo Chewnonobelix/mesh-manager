@@ -2,8 +2,6 @@
 
 #include <ctime>
 
-using namespace MathUtility;
-
 PerlinNoise::PerlinNoise()
 {
     persistence = 0;
