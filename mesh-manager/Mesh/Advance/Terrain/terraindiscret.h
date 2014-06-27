@@ -5,7 +5,7 @@
 #include "terraincontinu.h"
 #include "../../../Utility/perlinnoise.h"
 #include "pairbruitdistance.h"
-
+#include "../../../Utility/triangle3d.h"
 #include <QPair>
 
 namespace MeshAdvance
@@ -77,7 +77,7 @@ namespace MeshAdvance
         TerrainDiscret (TerrainContinu terrainIn,int taille, double deltaXY, double deltaZ );
 
         // A revoir
-        //void miseEnrelief( PerlinNoise noiseIn, Geometry::Point3D pointA, Geometry::Point3D pointB, int n );
+        //void miseEnrelief( PerlinNoise noiseIn, Geometry::Geometry::Point3D pointA, Geometry::Geometry::Point3D pointB, int n );
 
         MeshBase::Mesh getMesh( );
         // Interpolation dans un triangle.
@@ -103,6 +103,12 @@ namespace MeshAdvance
          * @param hauteurMin
          */
         void coupeCreux ( double hauteurMin, double facteur);
+
+        QVector<double> getTabElevation() const;
+
+        void setTabElevation(const QVector<double> &value);
+
+        QVector<Triangle3D> getTabTriangle();
     };
 }
 

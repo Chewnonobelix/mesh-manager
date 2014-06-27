@@ -39,7 +39,7 @@ public:
     */
    MeshBase::Mesh productionRules(QVector<double>);
    AvenueNT* clone(LSystem::Grammar<MeshBase::Mesh> *) const;
-   MeshBase::Mesh batiment(Geometry::Point3D);
+   MeshBase::Mesh batiment(QString&);
 };
 
 class RueNT: public LSystem::NonTerminal<MeshBase::Mesh>
@@ -53,7 +53,7 @@ public:
     */
    MeshBase::Mesh productionRules(QVector<double>);
    RueNT* clone(LSystem::Grammar<MeshBase::Mesh> *) const;
-   MeshBase::Mesh batiment(Geometry::Point3D);
+   MeshBase::Mesh batiment(QString&);
 };
 
 #endif // CITYNT_H

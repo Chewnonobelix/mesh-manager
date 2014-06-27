@@ -35,7 +35,7 @@ AvenueNT::AvenueNT(const AvenueNT & a): NonTerminal(a) {}
 
 MeshBase::Mesh AvenueNT::productionRules(QVector<double> param)
 {
-    qDebug()<<"Avenue NT";
+//    qDebug()<<"Avenue NT";
     double longeur = MathUtility::Math::alea(100.0, 5000.0);
     double largeur = MathUtility::Math::alea(0.0,100.0);
     int orientation2 = MathUtility::Math::alea(0,2);
@@ -87,12 +87,15 @@ MeshBase::Mesh AvenueNT::productionRules(QVector<double> param)
         {
             double angle = MathUtility::Math::alea(0,180);
             int o = MathUtility::Math::alea(0,2);
-            MeshBase::Mesh r;
+            MeshBase::Mesh r, t;
+            Triplet tr(tab[i]);
+            QString id;
 
             switch (MathUtility::Math::alea(0,3))
             {
             case 0: //Batiment
-                a += batiment(tab[i]);
+                t = batiment(id);
+                a.addAssoc(id, t, tr);
                 break;
             case 1: //Rue
                 if(o == 0)
@@ -117,25 +120,35 @@ MeshBase::Mesh AvenueNT::productionRules(QVector<double> param)
         }
         else
         {
-            a += batiment(tab[i]);
+            MeshBase::Mesh t;
+            Triplet tr(tab[i]);
+            QString id;
+
+            t = batiment(id);
+            a.addAssoc(id, t, tr);
         }
     }
+
+    return a;
 }
 
-MeshBase::Mesh AvenueNT::batiment(Geometry::Point3D p)
+MeshBase::Mesh AvenueNT::batiment(QString& nom)
 {
     MeshBase::Mesh ret;
 
     switch(MathUtility::Math::alea(0,3))
     {
     case 0:
-        ret = m_parent->terminalSymbol("Immeuble")->symbol({p.getX(), p.getY(), p.getZ()});
+        nom = "Immeuble";
+        ret = m_parent->terminalSymbol("Immeuble")->symbol({0.0, 0.0, 0.0});
         break;
     case 1:
-        ret = m_parent->terminalSymbol("Maison")->symbol({p.getX(), p.getY(), p.getZ()});
+        nom = "Maison";
+        ret = m_parent->terminalSymbol("Maison")->symbol({0.0, 0.0, 0.0});
         break;
     case 2:
-        ret = m_parent->terminalSymbol("Autre")->symbol({p.getX(), p.getY(), p.getZ()});
+        nom = "Autre";
+        ret = m_parent->terminalSymbol("Autre")->symbol({0.0, 0.0, 0.0});
         break;
     }
 
@@ -156,7 +169,7 @@ RueNT::RueNT(const RueNT& r): NonTerminal(r) {}
 MeshBase::Mesh RueNT::productionRules(QVector<double> param)
 {
 
-    qDebug()<<"Rue NT";
+//    qDebug()<<"Rue NT";
     double longeur = MathUtility::Math::alea(100.0, 5000.0);
     double largeur = MathUtility::Math::alea(0.0,100.0);
     int orientation2 = MathUtility::Math::alea(0,2);
@@ -207,12 +220,15 @@ MeshBase::Mesh RueNT::productionRules(QVector<double> param)
         {
             double angle = MathUtility::Math::alea(0,180);
             int o = MathUtility::Math::alea(0,2);
-            MeshBase::Mesh r;
+            MeshBase::Mesh r, t;
+            Triplet tr(tab[i]);
+            QString id;
 
-            switch (MathUtility::Math::alea(0,2))
+            switch (MathUtility::Math::alea(0,3))
             {
             case 0: //Batiment
-                a += batiment(tab[i]);
+                t = batiment(id);
+                a.addAssoc(id, t, tr);
                 break;
             case 1: //Rue
                 if(o == 0)
@@ -227,9 +243,16 @@ MeshBase::Mesh RueNT::productionRules(QVector<double> param)
         }
         else
         {
-            a += batiment(tab[i]);
+            MeshBase::Mesh t;
+            Triplet tr(tab[i]);
+            QString id;
+
+            t = batiment(id);
+            a.addAssoc(id, t, tr);
         }
     }
+
+    return a;
 }
 
 RueNT* RueNT::clone(LSystem::Grammar<MeshBase::Mesh> * parent) const
@@ -239,20 +262,23 @@ RueNT* RueNT::clone(LSystem::Grammar<MeshBase::Mesh> * parent) const
     return ret;
 }
 
-MeshBase::Mesh RueNT::batiment(Geometry::Point3D p)
+MeshBase::Mesh RueNT::batiment(QString& nom)
 {
     MeshBase::Mesh ret;
 
     switch(MathUtility::Math::alea(0,3))
     {
     case 0:
-        ret = m_parent->terminalSymbol("Immeuble")->symbol({p.getX(), p.getY(), p.getZ()});
+        nom = "Immeuble";
+        ret = m_parent->terminalSymbol("Immeuble")->symbol({0.0,0.0,0.0});
         break;
     case 1:
-        ret = m_parent->terminalSymbol("Maison")->symbol({p.getX(), p.getY(), p.getZ()});
+        nom = "Maison";
+        ret = m_parent->terminalSymbol("Maison")->symbol({0.0,0.0,0.0});
         break;
     case 2:
-        ret = m_parent->terminalSymbol("Autre")->symbol({p.getX(), p.getY(), p.getZ()});
+        nom = "Autre";
+        ret = m_parent->terminalSymbol("Autre")->symbol({0.0,0.0,0.0});
         break;
     }
 

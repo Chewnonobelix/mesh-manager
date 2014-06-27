@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <iostream>
+#define DIST(x,y,xx,yy) (sqrt ( (xx-x)*(xx-x)+ ( yy - y)*( yy - y)))
 
 using namespace MeshAdvance;
 
@@ -17,6 +18,8 @@ MeshBase::Mesh Generateur::creerRoute(Geometry::Point3D p0, Geometry::Point3D p1
 {
     MeshBase::Mesh ret;
     Geometry::Point3D p00,p11,p22,p33;
+    Geometry::Point3D dernierB;
+
     calcBezier::calculeOrthogonal(p0,p1,p2,p3,p00,p11,p22,p33, largeur);
 
     QVector <Geometry::Point3D> partieBasse;
@@ -29,10 +32,13 @@ MeshBase::Mesh Generateur::creerRoute(Geometry::Point3D p0, Geometry::Point3D p1
     partieHaute = c2.tabPoints();
 
     ret.m_tabPoint.reserve(partieBasse.size()*2);
+
     for (int i = 0 ; i < partieBasse.size(); i++)
     {
         Geometry::Point3D a(partieBasse[i].getX(),partieBasse[i].getY(), 0);
         Geometry::Point3D b(partieHaute[i].getX(),partieHaute[i].getY(), 0);
+
+        std::cout << b.getX() << std::endl;
 
         ret.m_tabPoint << a << b;
         ret.m_tabNorme << a.toVector() << b.toVector();
@@ -44,11 +50,97 @@ MeshBase::Mesh Generateur::creerRoute(Geometry::Point3D p0, Geometry::Point3D p1
             ret.m_tabTopologie << taille -2 << tn-2 << taille -1 << tn-1 << taille-3 << tn-3;
             ret.m_tabTopologie << taille -2 << tn-2 << taille << tn << taille-1 << tn-1;
         }
+        dernierB = b;
     }
 
 
 
     return ret;
+}
+
+
+MeshBase::Mesh Generateur::terraforme(MeshBase::Mesh &route, MeshBase::Mesh &terrain, double tailleRouteIN/*, TerrainComplexe &geol*/, int)
+{
+    MeshBase::Mesh m;
+    double tailleRoute = tailleRouteIN ;
+    m.m_tabPoint.reserve(terrain.m_tabPoint.size());
+    m.m_tabTopologie = terrain.m_tabTopologie;
+    m.m_tabNorme = terrain.m_tabNorme;
+
+    double xmmin, xmax,ymin,ymax;
+    MeshBase::Mesh::mensurationMesh(route, xmmin, xmax,ymin,ymax);
+
+    for (Geometry::Point3D p : terrain.m_tabPoint )
+    {
+        double z=p.getZ();
+        // Si on est dans le volume englobant la route
+        if ( p.getX() < xmax + tailleRoute *5 && p.getX() > xmmin - tailleRoute *5 && p.getY() < ymax+ tailleRoute *5 && p.getY() > ymin - tailleRoute *5)
+        {
+//            geol.tabTerre()[terrain.m_tabPoint.indexOf(p)]=0;
+            for ( int i = 0 ; i < route.m_tabPoint.size()-1; i++)
+            {
+                Geometry::Point3D pR = route.m_tabPoint[i];
+                double dist = p.distanceXYTo(pR);
+                double ratio = dist / (5*tailleRoute);
+
+                // Si i est pair, on est sur la partie Haute de la route
+                if( i%2==0)
+                {
+                    // Le point est sur la route.
+                    if ( dist <= tailleRoute && p.distanceXYTo(route.m_tabPoint[i+1])<= tailleRoute)
+                        z= pR.getZ();
+                    // Le point est proche de la route.
+                    else if ( dist < 5*tailleRoute && dist < p.distanceXYTo(route.m_tabPoint[i+1]) )
+                    {
+                        // Si ce point est plus proche du point précedement traité
+                        int idMin=i;
+                        for ( int j = 0 ; j < route.m_tabPoint.size(); j++ )
+                        {
+                            Geometry::Point3D pp = route.m_tabPoint[j];
+                            if ( dist > pp.distanceXYTo(p) )
+                                idMin = j;
+                        }
+                        if ( idMin == i)
+                        {
+                            z = p.getZ()*ratio + pR.getZ()*(1-ratio);
+                        }
+                    }
+                }
+                // Partie Basse
+                else
+                {
+                    // Le point est sur la route.
+                    if ( dist <= tailleRoute && p.distanceXYTo(route.m_tabPoint[i-1])<= tailleRoute)
+                        z= pR.getZ();
+                    // Le point est proche de la route.
+                    else if (dist < 5*tailleRoute && dist < p.distanceXYTo(route.m_tabPoint[i-1]) )
+                    {
+                        int idMin=i;
+                        for ( int j = 0 ; j < route.m_tabPoint.size(); j++ )
+                        {
+                            Geometry::Point3D pp = route.m_tabPoint[j];
+                            if ( dist > pp.distanceXYTo(p) )
+                                idMin = j;
+                        }
+                        if ( idMin == i)
+                        {
+                            //std::cout << "PASSE"<<std::endl;
+                            z = p.getZ()*ratio + pR.getZ()*(1-ratio);
+                        }
+                    }
+                }
+            }
+            Geometry::Point3D pp(p.getX(), p.getY(), z);
+            m.m_tabPoint.push_back(pp);
+        }
+        // Trop loin de la route, on laisse tel quel.
+        else
+        {
+            m.m_tabPoint.push_back(p);
+        }
+    }
+    return m;
+
 }
 
 
@@ -67,7 +159,7 @@ MeshBase::Mesh Generateur::terraforme(MeshBase::Mesh &route, MeshBase::Mesh &ter
     {
         double z=p.getZ();
         // Si on est dans le volume englobant la route
-        if ( p.getX() < xmax + tailleRoute *2 && p.getX() > xmmin - tailleRoute *2 && p.getY() < ymax+ tailleRoute *2 && p.getY() > ymin - tailleRoute *2)
+        if ( p.getX() < xmax + tailleRoute *5 && p.getX() > xmmin - tailleRoute *5 && p.getY() < ymax+ tailleRoute *5 && p.getY() > ymin - tailleRoute *2)
         {
             for ( int i = 0 ; i < route.m_tabPoint.size()-1; i++)
             {
@@ -116,7 +208,7 @@ MeshBase::Mesh Generateur::terraforme(MeshBase::Mesh &route, MeshBase::Mesh &ter
                         }
                         if ( idMin == i)
                         {
-                            std::cout << "PASSE"<<std::endl;
+                            //std::cout << "PASSE"<<std::endl;
                             z = p.getZ()*ratio + pR.getZ()*(1-ratio);
                         }
                     }
@@ -704,4 +796,3 @@ MeshBase::Mesh Generateur::toitSimpleFez()
     m.redimensionner(1.0/3.0,1.0/3.0,0.5);
     return m;
 }
-

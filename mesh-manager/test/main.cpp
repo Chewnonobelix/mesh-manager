@@ -11,6 +11,7 @@
 #include <QList>
 #include <QDebug>
 #include <QDir>
+#include <QTime>
 
 using namespace LSystem;
 
@@ -561,6 +562,8 @@ void proc()
     p[7] = 2;
     p[8] = true;
 
+    QTime timer;
+    timer.start();
     for(int j = 0; j < 10; j ++)
     {
         QString d ("set arbre "+QString::number(j)+"/");
@@ -568,7 +571,9 @@ void proc()
         di.mkdir(d);
         for(int i = 0; i < 10; i++)
         {
+            timer.restart();
             MeshBase::Mesh m = gt.generation(p);
+            qDebug()<<"Génération de l'arbre "<<(j*10+i)<<"en"<<timer.elapsed()<<"ms";
             m.writeObj(d+"treeTest" + QString::number(i) + ".obj");
         }
     }

@@ -8,7 +8,7 @@ Point3D::Point3D():coord_x(0), coord_y(0), coord_z(0)
 Point3D::Point3D(double x, double y, double z):coord_x(x), coord_y(y), coord_z(z)
 {}
 
-Point3D::Point3D(const Point3D& p): coord_x(p.getX()), coord_y(p.getY()), coord_z(p.getZ())
+Point3D::Point3D(const Geometry::Point3D& p): coord_x(p.getX()), coord_y(p.getY()), coord_z(p.getZ())
 {}
 Point3D::~Point3D()
 {}
@@ -79,7 +79,7 @@ Point3D& Point3D::operator += (const Point3D& p)
 
 Point3D Point3D::operator*(double s)
 {
-    return Point3D (getX() * s, getY() * s, getZ() * s);
+    return Geometry::Point3D (getX() * s, getY() * s, getZ() * s);
 }
 
 Point3D& Point3D::operator *= (double s)

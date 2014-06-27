@@ -62,6 +62,30 @@ double TerrainDiscret::getZ(int x, int y)
     return res;
 }
 
+QVector<Triangle3D> TerrainDiscret::getTabTriangle()
+{
+    QVector<Triangle3D>  tab;
+    tab.reserve(2*(mTailleTerrain*mTailleTerrain));
+
+    for (int i = 0 ; i < mTailleTerrain; i++ )
+    {
+        for (int j = 0 ; j < mTailleTerrain; j++ )
+        {
+            Geometry::Point3D A,B,C,D;
+            A = Geometry::Point3D(j*mDeltaXY,i*mDeltaXY,getZ(i,j));
+            B = Geometry::Point3D(j*mDeltaXY,(i+1)*mDeltaXY,getZ((i+1),j));
+            C = Geometry::Point3D((j+1)*mDeltaXY,(i+1)*mDeltaXY,getZ((i+1),(j+1)));
+            D = Geometry::Point3D((j+1)*mDeltaXY,i*mDeltaXY,getZ(i,(j+1)));
+
+            Triangle3D ta (A,B,D);
+            Triangle3D tb (B,C,D);
+            tab << ta << tb;
+        }
+    }
+
+    return tab;
+}
+
 
 double TerrainDiscret::getZ(int x)
 {
@@ -69,7 +93,7 @@ double TerrainDiscret::getZ(int x)
         return mTabElevation[x];
     else
     {
-        std::cout << "ERR - Depassement de capacité TerrainDiscret::getZ(int)" << std::endl;
+        std::cerr << "ERR - Depassement de capacité TerrainDiscret::getZ(int)" << std::endl;
         return 0.0;
     }
 }
@@ -79,16 +103,25 @@ MeshBase::Mesh TerrainDiscret::getMesh()
 {
     mMesh = MeshBase::MeshFactory::planComplexe(mTailleTerrain);
 
-    mMesh.redimensionner(mTailleTerrain*mDeltaXY, mTailleTerrain*mDeltaXY,1);
+    mMesh.redimensionner(mTailleTerrain*mDeltaXY, mTailleTerrain*mDeltaXY,mDeltaZ);
     for ( int i = 0 ; i < mMesh.m_tabPoint.size() ; i++ )
     {
-        double z = getZ(i) * mDeltaZ;
-        //std::cout << "coucou " << i << std::endl;
+        double z = getZ(i);
         mMesh.m_tabPoint[i].setZ(z);
     }
     return mMesh;
 }
 
+
+QVector<double> TerrainDiscret::getTabElevation() const
+{
+    return mTabElevation;
+}
+
+void TerrainDiscret::setTabElevation(const QVector<double> &value)
+{
+    mTabElevation = value;
+}
 bool TerrainDiscret::contient ( double x, double y, QPair<Geometry::Point3D ,Geometry::Point3D > pairIn)
 {
     bool ret = false;
@@ -142,7 +175,7 @@ TerrainDiscret::TerrainDiscret ( QString cheminNomDeFichier, double deltaXY, dou
         for (int j = 0 ; j < largeur ; j ++)
         {
             QRgb pixel = image.pixel(j, i);
-            mTabElevation.push_back(qGray(pixel));
+            mTabElevation.push_back(qGray(pixel)*deltaZ);
         }
     }
     std::cout << "fini" << mTabElevation.size() << std::endl;

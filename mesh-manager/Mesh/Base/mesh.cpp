@@ -723,5 +723,15 @@ namespace MeshBase
         }
 
     }
+
+    void Mesh::addAssoc(QString id, const Mesh& m, Triplet t)
+    {
+        if(!m_assoc.containMesh(id))
+        {
+            m_assoc.addMesh(id,  m);
+        }
+
+        m_assoc.addTransfo(id, t);
+    }
 }
 

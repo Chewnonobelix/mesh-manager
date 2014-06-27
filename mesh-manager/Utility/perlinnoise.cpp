@@ -50,8 +50,8 @@ double PerlinNoise::GetHeight(double x, double y) const
 double PerlinNoise::Total(double i, double j) const
 {
     //properties of one octave (changing each loop)
-    double t = 0.0f;
-    double _amplitude = 1;
+    double t = 0.0d;
+    double _amplitude = amplitude;
     double freq = frequency;
 
     for(int k = 0; k < octaves; k++)

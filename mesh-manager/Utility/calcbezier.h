@@ -35,6 +35,9 @@ public:
     static void calculeOrthogonal (Geometry::Point3D& p0, Geometry::Point3D& p1, Geometry::Point3D& p2, Geometry::Point3D& p3,
                                    Geometry::Point3D& p00, Geometry::Point3D& p11, Geometry::Point3D& p22, Geometry::Point3D& p33, double largeur);
 
+    static void calculeOrthogonalSimple
+        (Geometry::Point3D &p0, Geometry::Point3D &p1, Geometry::Point3D &p00, double largeur);
+
     static QVector<quad_coord> getTabPointsRoute ( QVector<Geometry::Point3D> pointsDePassage);
 };
 

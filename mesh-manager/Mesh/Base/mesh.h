@@ -6,6 +6,7 @@
 #include "../../Utility/point3d.h"
 #include "../../Utility/vector.h"
 #include "../../Utility/mathutils.h"
+#include "association.h"
 
 namespace MeshBase
 {
@@ -31,10 +32,10 @@ namespace MeshBase
         QVector<Geometry::Point3D> m_tabPoint;
         QVector<Geometry::Vector> m_tabNorme;
         QVector<int> m_tabTopologie;
+        Association m_assoc;
 
         /**
          * @brief subDivideSpherePoint Fonction permettant de subdviser une shphère
-         * Non testé
          */
         void subDivideSpherePoint(int = 1);
 
@@ -166,6 +167,7 @@ namespace MeshBase
         static Mesh generateurTerrain ();
 
         static void mensurationMesh(Mesh& m, double& xmmin,double& xmax,double& ymin,double& ymax);
+        void addAssoc(QString, const Mesh&, Triplet);
     };
 }
 

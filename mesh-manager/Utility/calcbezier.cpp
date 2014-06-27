@@ -32,6 +32,19 @@ void calcBezier::calculeOrthogonal(Geometry::Point3D &p0, Geometry::Point3D &p1,
     p00.setY(p0.getY()+AO[1]);
     p00.setZ(p0.getZ()+AO[2]);
 
+    if (p00.getZ() !=0 )
+    {
+        AO = Orthogonal(AO);
+        AO = Normalized(AO);
+        AO = AO * largeur;
+
+
+
+        p00.setX(p0.getX()+AO[0]);
+        p00.setY(p0.getY()+AO[1]);
+        p00.setZ(p0.getZ()+AO[2]);
+    }
+
 
     p11.setX(p1.getX()+AO[0]);
     p11.setY(p1.getY()+AO[1]);
@@ -49,6 +62,17 @@ void calcBezier::calculeOrthogonal(Geometry::Point3D &p0, Geometry::Point3D &p1,
 
 }
 
+void calcBezier::calculeOrthogonalSimple(Geometry::Point3D &p0, Geometry::Point3D &p1, Geometry::Point3D &p00, double largeur)
+{
+    Geometry::Vector A(p1.getX()-p0.getX(), p1.getY()-p0.getY(), p1.getZ() - p0.getZ());
+    Geometry::Vector AO = Orthogonal(A);
+    AO = Normalized(AO);
+    AO = AO * largeur;
+
+    p00.setX(p0.getX()+AO[0]);
+    p00.setY(p0.getY()+AO[1]);
+    p00.setZ(p0.getZ()+AO[2]);
+}
 
 
 QVector<quad_coord> calcBezier::getTabPointsRoute(QVector<Geometry::Point3D> pointsDePassage)

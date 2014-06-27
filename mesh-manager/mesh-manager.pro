@@ -26,7 +26,9 @@ HEADERS += \
     Mesh/Advance/City/cityt.h \
     Mesh/Advance/City/citygrammar.h \
     Utility/calcbezier.h \
-    Mesh/Advance/batiment.h
+    Mesh/Advance/batiment.h \
+    Mesh/Base/association.h \
+    Utility/triangle3d.h
 
 SOURCES += \
     Mesh/Advance/Terrain/pairbruitdistance.cpp \
@@ -48,4 +50,6 @@ SOURCES += \
     Mesh/Advance/City/cityt.cpp \
     Mesh/Advance/City/citygrammar.cpp \
     Utility/calcbezier.cpp \
-    Mesh/Advance/batiment.cpp
+    Mesh/Advance/batiment.cpp \
+    Mesh/Base/association.cpp \
+    Utility/triangle3d.cpp
